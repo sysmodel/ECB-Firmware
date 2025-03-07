@@ -127,6 +127,8 @@ void Error_Handler(void);
 #define JOYSTICK_RHT_GPIO_Port GPIOD
 #define JOYSTICK_MID_Pin GPIO_PIN_12
 #define JOYSTICK_MID_GPIO_Port GPIOD
+#define TEST_Pin GPIO_PIN_13
+#define TEST_GPIO_Port GPIOD
 #define R_AS_DRV_SLP_Pin GPIO_PIN_5
 #define R_AS_DRV_SLP_GPIO_Port GPIOG
 #define R_AS_DRV_FLT_Pin GPIO_PIN_6
