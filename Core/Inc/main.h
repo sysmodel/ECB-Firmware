@@ -55,7 +55,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void printmsg(char *format,...); // debug printf() via USART2 (FTDI header) 
+void delay_10ns(uint32_t delay); // tim2 reserved for 10ns hardware delay
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -113,6 +114,14 @@ void Error_Handler(void);
 #define L_AS_ENC_GPIO_Port GPIOG
 #define R_AS_ENC_Pin GPIO_PIN_7
 #define R_AS_ENC_GPIO_Port GPIOE
+#define L_ST_SRV_PWM_Pin GPIO_PIN_9
+#define L_ST_SRV_PWM_GPIO_Port GPIOE
+#define R_ST_SRV_PWM_Pin GPIO_PIN_11
+#define R_ST_SRV_PWM_GPIO_Port GPIOE
+#define L_BBW_SRV_PWM_Pin GPIO_PIN_13
+#define L_BBW_SRV_PWM_GPIO_Port GPIOE
+#define R_BBW_SRV_PWM_Pin GPIO_PIN_14
+#define R_BBW_SRV_PWM_GPIO_Port GPIOE
 #define MCM_TX_Pin GPIO_PIN_10
 #define MCM_TX_GPIO_Port GPIOB
 #define MCM_RX_Pin GPIO_PIN_11
