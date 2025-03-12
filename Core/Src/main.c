@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include "encoder.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +57,6 @@ CRC_HandleTypeDef hcrc;
 I2C_HandleTypeDef hi2c4;
 
 TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim8;
 
 UART_HandleTypeDef huart7;
@@ -86,7 +87,6 @@ static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USART6_UART_Init(void);
 static void MX_TIM1_Init(void);
-static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -110,16 +110,6 @@ void printmsg(char *format,...)
     HAL_UART_Transmit(&huart2,(uint8_t *)str, strlen(str),HAL_MAX_DELAY);
 
     va_end(args);
-}
-
-/*
- * @brief 10ns hardware delay using timer2, max delay is 0xffffffff*10ns
- * @param delay Delay duration in 10ns interval
- */
-void delay_10ns(uint32_t delay) // timer2 = 100MHz
-{
-	__HAL_TIM_SET_COUNTER(&htim2,0);
-	while(__HAL_TIM_GET_COUNTER(&htim2) < delay);
 }
 
 /* USER CODE END 0 */
@@ -170,12 +160,27 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   MX_TIM1_Init();
-  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-  uint8_t user_cmd;
-  uint8_t tx_buffer[2] = {0};
+  Encoder l_bbw_enc = { .cs_port = L_BBW_ENC_GPIO_Port,
+                        .cs_pin = L_BBW_ENC_Pin};
 
+  Encoder r_bbw_enc = { .cs_port = R_BBW_ENC_GPIO_Port,
+                        .cs_pin = R_BBW_ENC_Pin };
+  
+  Encoder l_lc_enc = { .cs_port = L_LC_ENC_GPIO_Port,
+                       .cs_pin = L_LC_ENC_Pin };
+  
+  Encoder r_lc_enc = { .cs_port = R_LC_ENC_GPIO_Port,
+                       .cs_pin = R_LC_ENC_Pin };
+
+  Encoder l_as_enc = { .cs_port = L_AS_ENC_GPIO_Port,
+                       .cs_pin = L_AS_ENC_Pin };
+
+  Encoder r_as_enc = { .cs_port = R_AS_ENC_GPIO_Port,
+                       .cs_pin = R_AS_ENC_Pin };
+ 
+                    
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -185,14 +190,26 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    if(HAL_UART_Receive(&huart2,&user_cmd,1,HAL_MAX_DELAY) == HAL_OK)
-    {
-      printmsg((char*)&user_cmd);
-      printmsg("\r\n");
-      memcpy(tx_buffer,&user_cmd,1);
-      tx_buffer[1] = 0x0A;
-      HAL_UART_Transmit(&huart6,tx_buffer,1,HAL_MAX_DELAY);
-	}
+    printmsg("======================================================\r\n");
+    if(!read_encoder(&l_bbw_enc)) printmsg("L_BBW = 0x%X\n\r",l_bbw_enc.position);
+    else printmsg("ERROR\r\n");
+
+    if(!read_encoder(&r_bbw_enc)) printmsg("R_BBW = 0x%X\n\r",r_bbw_enc.position);
+    else printmsg("ERROR\r\n");
+
+    if(!read_encoder(&l_lc_enc)) printmsg("L_LC = 0x%X\n\r",l_lc_enc.position);
+    else printmsg("ERROR\r\n");
+  
+    if(!read_encoder(&r_lc_enc)) printmsg("R_LC = 0x%X\n\r",r_lc_enc.position);
+    else printmsg("ERROR\r\n");
+
+    if(!read_encoder(&l_as_enc)) printmsg("L_AS = 0x%X\n\r",l_as_enc.position);
+    else printmsg("ERROR\r\n");
+
+    if(!read_encoder(&r_as_enc)) printmsg("R_AS = 0x%X\n\r",r_as_enc.position);
+    else printmsg("ERROR\r\n");
+    printmsg("======================================================\r\n");
+    HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
@@ -638,51 +655,6 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
-
-}
-
-/**
-  * @brief TIM2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM2_Init(void)
-{
-
-  /* USER CODE BEGIN TIM2_Init 0 */
-
-  /* USER CODE END TIM2_Init 0 */
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM2_Init 1 */
-
-  /* USER CODE END TIM2_Init 1 */
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM2_Init 2 */
-
-  /* USER CODE END TIM2_Init 2 */
 
 }
 

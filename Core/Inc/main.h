@@ -55,8 +55,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void printmsg(char *format,...); // debug printf() via USART2 (FTDI header) 
-void delay_10ns(uint32_t delay); // tim2 reserved for 10ns hardware delay
+void printmsg(char *format,...); // debug printf() via USART2 (FTDI header)
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
