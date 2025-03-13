@@ -53,4 +53,8 @@
     	HAL_Delay(SERVO_DELAY_MS);
     }
 
+    HAL_TIM_PWM_Stop(timer,TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(timer,TIM_CHANNEL_2);
+    HAL_TIM_PWM_Stop(timer,TIM_CHANNEL_3);
+    HAL_TIM_PWM_Stop(timer,TIM_CHANNEL_4);
  }

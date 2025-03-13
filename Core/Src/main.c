@@ -98,9 +98,9 @@ UART_HandleTypeDef huart6;
   Servo r_bbw_srv = { .timer = &htim1,
                       .channel = TIM_CHANNEL_4 };
 
-  uint16_t voltage_buffer[4];
-  uint16_t current_buffer[4];
-  uint8_t isADCFinished = 0;
+  uint32_t voltage_buffer[4];
+  uint32_t current_buffer[4];
+  uint8_t adc_done = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -152,9 +152,9 @@ void printmsg(char *format,...)
  */
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  printmsg("hello WORLD????\r\n");
+  printmsg("ADC DONE!!\r\n");
 
-  isADCFinished = 1;
+  adc_done = 1;
 }
 
 /**
@@ -162,25 +162,25 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
  */
 void read_servo_voltage()
 {
-  printmsg("hello WORLD!!!!!\r\n");
+  memset(voltage_buffer,0,sizeof(voltage_buffer));
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  if(isADCFinished)
-  {
-    l_st_srv.v_pot = voltage_buffer[0];
-    r_st_srv.v_pot = voltage_buffer[1];
-    l_bbw_srv.v_pot = voltage_buffer[2];
-    r_bbw_srv.v_pot = voltage_buffer[3];
-    HAL_ADC_Stop_DMA(&hadc1);
-    isADCFinished = 0;
+  while(!adc_done); // effectively turn this into polling
 
-    // debug 
-    printmsg("============= SERVOS' POTENTIOMETERS ===============\r\n");
-    printmsg("L_ST_SRV = %d\n\r",l_st_srv.v_pot);
-    printmsg("R_ST_SRV = %d\n\r",r_st_srv.v_pot);
-    printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.v_pot);
-    printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.v_pot);
-    printmsg("====================================================\r\n\n");
-  }
+  l_st_srv.v_pot = voltage_buffer[0];
+  r_st_srv.v_pot = voltage_buffer[1];
+  l_bbw_srv.v_pot = voltage_buffer[2];
+  r_bbw_srv.v_pot = voltage_buffer[3];
+  HAL_ADC_Stop_DMA(&hadc1);
+  adc_done = 0;
+
+  // debug
+  printmsg("============= SERVOS' POTENTIOMETERS ===============\r\n");
+  printmsg("L_ST_SRV = %d\n\r",l_st_srv.v_pot);
+  printmsg("R_ST_SRV = %d\n\r",r_st_srv.v_pot);
+  printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.v_pot);
+  printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.v_pot);
+  printmsg("====================================================\r\n\n");
+
 }
 
 /* USER CODE END 0 */
@@ -243,32 +243,33 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//     printmsg("======================= ENCODERS =========================\r\n");
-//     if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW = 0x%X\n\r",l_bbw_enc.position);
-//     else printmsg("ENCODER ERROR\r\n");
-//
-//     if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW = 0x%X\n\r",r_bbw_enc.position);
-//     else printmsg("ENCODER ERROR\r\n");
-//
-//     if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC = 0x%X\n\r",l_lc_enc.position);
-//     else printmsg("ENCODER ERROR\r\n");
-//
-//     if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC = 0x%X\n\r",r_lc_enc.position);
-//     else printmsg("ENCODER ERROR\r\n");
-//
-//     if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS = 0x%X\n\r",l_as_enc.position);
-//     else printmsg("ENCODER ERROR\r\n");
-//
-//     if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS = 0x%X\n\r",r_as_enc.position);
-//     else printmsg("ENCODER ERROR\r\n");
-//     printmsg("======================================================\r\n\n");
+     printmsg("===================== ENCODERS =====================\r\n");
+     if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW = 0x%X\n\r",l_bbw_enc.position);
+     else printmsg("ENCODER ERROR\r\n");
 
+     if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW = 0x%X\n\r",r_bbw_enc.position);
+     else printmsg("ENCODER ERROR\r\n");
+
+     if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC = 0x%X\n\r",l_lc_enc.position);
+     else printmsg("ENCODER ERROR\r\n");
+
+     if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC = 0x%X\n\r",r_lc_enc.position);
+     else printmsg("ENCODER ERROR\r\n");
+
+     if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS = 0x%X\n\r",l_as_enc.position);
+     else printmsg("ENCODER ERROR\r\n");
+
+     if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS = 0x%X\n\r",r_as_enc.position);
+     else printmsg("ENCODER ERROR\r\n");
+     printmsg("====================================================\r\n\n");
+
+    
 //   run_servo(&l_st_srv, 50);
 //   run_servo(&r_st_srv, 75);
 //   run_servo(&l_bbw_srv,100);
 
-//     test_servo(&htim1);
-     read_servo_voltage();
+    test_servo(&htim1);
+    read_servo_voltage();
 
   }
   /* USER CODE END 3 */
