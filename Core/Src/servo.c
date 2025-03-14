@@ -11,9 +11,9 @@
     __HAL_TIM_SET_COMPARE(servo->timer,servo->channel,ccr_val);
     
     // TODO: maybe change it to timer (hardware) delay instead of HAL?
-    HAL_Delay(SERVO_DELAY_MS);
-
-    HAL_TIM_PWM_Stop(servo->timer, servo->channel);
+//     HAL_Delay(SERVO_DELAY_MS);
+//
+//     HAL_TIM_PWM_Stop(servo->timer, servo->channel); // stop or continuous until stop??
  }
 
  /**

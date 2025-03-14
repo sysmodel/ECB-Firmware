@@ -151,7 +151,7 @@ void printmsg(char *format,...)
 /**
  * @brief Interrupt notification when ADC-DMA conv. is finished
  */
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 //  printmsg("ADC DONE!!\r\n");
 
@@ -164,8 +164,16 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 void read_servo_voltage()
 {
   memset(voltage_buffer,0,sizeof(voltage_buffer));
+
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
   while(!adc_done); // effectively turn this into polling
+  HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
+  while(!adc_done);
+  HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
+  while(!adc_done);
+  HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
+  while(!adc_done);
+
   HAL_ADC_Stop_DMA(&hadc1);
   l_st_srv.v_pot = voltage_buffer[0];
   r_st_srv.v_pot = voltage_buffer[1];
@@ -270,35 +278,43 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-     printmsg("===================== ENCODERS =====================\r\n");
-     if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
-     else printmsg("ENCODER ERROR\r\n");
+    //  printmsg("===================== ENCODERS =====================\r\n");
+    //  if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
+    //  else printmsg("ENCODER ERROR\r\n");
 
-     if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
-     else printmsg("ENCODER ERROR\r\n");
+    //  if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
+    //  else printmsg("ENCODER ERROR\r\n");
 
-     if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
-     else printmsg("ENCODER ERROR\r\n");
+    //  if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
+    //  else printmsg("ENCODER ERROR\r\n");
 
-     if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
-     else printmsg("ENCODER ERROR\r\n");
+    //  if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
+    //  else printmsg("ENCODER ERROR\r\n");
 
-     if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
-     else printmsg("ENCODER ERROR\r\n");
+    //  if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
+    //  else printmsg("ENCODER ERROR\r\n");
 
-     if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
-     else printmsg("ENCODER ERROR\r\n");
-     printmsg("====================================================\r\n\n");
+    //  if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
+    //  else printmsg("ENCODER ERROR\r\n");
+    //  printmsg("====================================================\r\n\n");
 
-     test_servo(&htim1);
-
-    //  HAL_Delay(50);
-
-    //  read_servo_voltage();
+//      test_servo(&htim1);
 
     //  HAL_Delay(50);
 
-    //  read_servo_current();
+    read_servo_voltage();
+
+    //  HAL_Delay(50);
+
+//    read_servo_current();
+
+//    printmsg("Running... \r\n");
+    run_servo(&l_st_srv,180);
+    run_servo(&r_st_srv,180);
+    run_servo(&l_bbw_srv,180);
+    run_servo(&r_bbw_srv,180);
+
+    HAL_Delay(500);
 
   }
   /* USER CODE END 3 */
@@ -387,7 +403,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 4;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -460,7 +476,7 @@ static void MX_ADC2_Init(void)
   hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
   hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc2.Init.ContinuousConvMode = DISABLE;
+  hadc2.Init.ContinuousConvMode = ENABLE;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
