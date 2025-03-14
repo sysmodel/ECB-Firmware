@@ -290,15 +290,15 @@ int main(void)
      else printmsg("ENCODER ERROR\r\n");
      printmsg("====================================================\r\n\n");
 
-    test_servo(&htim1);
+     test_servo(&htim1);
 
-    HAL_Delay(50);
+    //  HAL_Delay(50);
 
-    read_servo_voltage();
+    //  read_servo_voltage();
 
-    HAL_Delay(50);
+    //  HAL_Delay(50);
 
-    read_servo_current();
+    //  read_servo_current();
 
   }
   /* USER CODE END 3 */
