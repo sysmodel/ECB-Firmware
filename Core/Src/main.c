@@ -284,32 +284,32 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      printmsg("===================== ENCODERS =====================\r\n");
-      if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
-      else printmsg("ENCODER ERROR\r\n");
-
-      if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
-      else printmsg("ENCODER ERROR\r\n");
-
-      if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
-      else printmsg("ENCODER ERROR\r\n");
-
-      if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
-      else printmsg("ENCODER ERROR\r\n");
-
-      if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
-      else printmsg("ENCODER ERROR\r\n");
-
-      if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
-      else printmsg("ENCODER ERROR\r\n");
-      printmsg("====================================================\r\n\n");
-
-
-    read_servo_potentiometer();
-
-    HAL_Delay(50);
-
-    read_servo_current();
+//      printmsg("===================== ENCODERS =====================\r\n");
+//      if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
+//      else printmsg("ENCODER ERROR\r\n");
+//
+//      if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
+//      else printmsg("ENCODER ERROR\r\n");
+//
+//      if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
+//      else printmsg("ENCODER ERROR\r\n");
+//
+//      if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
+//      else printmsg("ENCODER ERROR\r\n");
+//
+//      if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
+//      else printmsg("ENCODER ERROR\r\n");
+//
+//      if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
+//      else printmsg("ENCODER ERROR\r\n");
+//      printmsg("====================================================\r\n\n");
+//
+//
+//    read_servo_potentiometer();
+//
+//    HAL_Delay(50);
+//
+//    read_servo_current();
 
 //    printmsg("Running... \r\n");
 //    run_servo(&l_st_srv,50);
@@ -318,9 +318,10 @@ int main(void)
 //    run_servo(&r_bbw_srv,50);
 
     test_servo(&htim1);
-    HAL_ADC_Stop_DMA(&hadc2);
 
-    HAL_Delay(500);
+//    HAL_ADC_Stop_DMA(&hadc2);
+//
+//    HAL_Delay(500);
 
   }
   /* USER CODE END 3 */
