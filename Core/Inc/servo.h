@@ -18,8 +18,8 @@
  typedef struct{
     TIM_HandleTypeDef* timer;     // timer handler
     uint32_t           channel;   // timer's pwm channel (check .ioc file)
-    uint16_t           v_pot;     // internal potentiometer voltage
-    uint16_t           i_sense;   // servo's current draw
+    uint32_t           v_pot;     // internal potentiometer voltage
+    uint32_t           i_sense;   // servo's current draw
  } Servo;
 
  void run_servo(Servo* servo, uint8_t dutycycle);

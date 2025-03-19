@@ -151,26 +151,40 @@ void printmsg(char *format,...)
 /**
  * @brief Interrupt notification when ADC-DMA conv. is finished
  */
+int counter = 0;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-//  printmsg("ADC DONE!!\r\n");
+  if(hadc == &hadc1) { adc_done = 1; }
+  if(hadc == &hadc2)
+  {
+//	  counter++;
+	  l_st_srv.i_sense = current_buffer[0];
+	  r_st_srv.i_sense = current_buffer[1];
+	  l_bbw_srv.i_sense = current_buffer[2];
+	  r_bbw_srv.i_sense = current_buffer[3];
 
-  adc_done = 1;
+	  // debug
+	  printmsg("============= SERVO'S CURRENT ====================\r\n");
+	  printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
+	  printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
+	  printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
+	  printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
+	  printmsg("====================================================\r\n\n");
+//	  adc_done = 1;
+  }
 }
 
 /**
  * @brief read all servos' internal potentiometers
  */
-void read_servo_voltage()
+void read_servo_potentiometer()
 {
   memset(voltage_buffer,0,sizeof(voltage_buffer));
 
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  while(!adc_done); // effectively turn this into polling
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  while(!adc_done);
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  while(!adc_done);
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
   while(!adc_done);
 
@@ -198,24 +212,16 @@ void read_servo_voltage()
 void read_servo_current()
 {
   memset(current_buffer,0,sizeof(current_buffer));
+
   HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
-  while(!adc_done); // effectively turn this into polling
-  HAL_ADC_Stop_DMA(&hadc2);
-  l_st_srv.i_sense = current_buffer[0];
-  r_st_srv.i_sense = current_buffer[1];
-  l_bbw_srv.i_sense = current_buffer[2];
-  r_bbw_srv.i_sense = current_buffer[3];
-
-
-  // debug
-  printmsg("============= SERVO'S CURRENT ====================\r\n");
-  printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
-  printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
-  printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
-  printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
-  printmsg("====================================================\r\n\n");
-
-  adc_done = 0;
+  HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
+  HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
+  HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
+//  while(!adc_done); // effectively turn this into polling
+//  HAL_ADC_Stop_DMA(&hadc2);
+//  adc_done = 0;
+//  printmsg("counter = %d\r\n", counter);
+//  counter = 0;
 }
 
 /* USER CODE END 0 */
@@ -278,41 +284,41 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    //  printmsg("===================== ENCODERS =====================\r\n");
-    //  if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
-    //  else printmsg("ENCODER ERROR\r\n");
+      printmsg("===================== ENCODERS =====================\r\n");
+      if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
+      else printmsg("ENCODER ERROR\r\n");
 
-    //  if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
-    //  else printmsg("ENCODER ERROR\r\n");
+      if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
+      else printmsg("ENCODER ERROR\r\n");
 
-    //  if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
-    //  else printmsg("ENCODER ERROR\r\n");
+      if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
+      else printmsg("ENCODER ERROR\r\n");
 
-    //  if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
-    //  else printmsg("ENCODER ERROR\r\n");
+      if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
+      else printmsg("ENCODER ERROR\r\n");
 
-    //  if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
-    //  else printmsg("ENCODER ERROR\r\n");
+      if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
+      else printmsg("ENCODER ERROR\r\n");
 
-    //  if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
-    //  else printmsg("ENCODER ERROR\r\n");
-    //  printmsg("====================================================\r\n\n");
+      if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
+      else printmsg("ENCODER ERROR\r\n");
+      printmsg("====================================================\r\n\n");
 
-//      test_servo(&htim1);
 
-    //  HAL_Delay(50);
+    read_servo_potentiometer();
 
-    read_servo_voltage();
+    HAL_Delay(50);
 
-    //  HAL_Delay(50);
-
-//    read_servo_current();
+    read_servo_current();
 
 //    printmsg("Running... \r\n");
-    run_servo(&l_st_srv,180);
-    run_servo(&r_st_srv,180);
-    run_servo(&l_bbw_srv,180);
-    run_servo(&r_bbw_srv,180);
+//    run_servo(&l_st_srv,50);
+//    run_servo(&r_st_srv,50);
+//    run_servo(&l_bbw_srv,50);
+//    run_servo(&r_bbw_srv,50);
+
+    test_servo(&htim1);
+    HAL_ADC_Stop_DMA(&hadc2);
 
     HAL_Delay(500);
 
@@ -403,7 +409,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 4;
-  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -414,7 +420,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -476,7 +482,7 @@ static void MX_ADC2_Init(void)
   hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
   hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc2.Init.ContinuousConvMode = ENABLE;
+  hadc2.Init.ContinuousConvMode = DISABLE;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
@@ -493,7 +499,7 @@ static void MX_ADC2_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
     Error_Handler();
