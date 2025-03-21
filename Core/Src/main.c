@@ -72,7 +72,6 @@ UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 
-
 Encoder l_bbw_enc = { .cs_port = L_BBW_ENC_GPIO_Port,
 					.cs_pin = L_BBW_ENC_Pin};
 
@@ -158,7 +157,7 @@ void printmsg(char *format,...)
 /**
  * @brief Interrupt notification when ADC-DMA conv. is finished
  */
-int counter = 0;
+// int counter = 0;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
@@ -171,13 +170,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 	  l_bbw_srv.i_sense = current_buffer[2];
 	  r_bbw_srv.i_sense = current_buffer[3];
 
-	  // debug
-	  printmsg("============= SERVO'S CURRENT ====================\r\n");
-	  printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
-	  printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
-	  printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
-	  printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
-	  printmsg("====================================================\r\n\n");
+//	  HAL_ADC_Stop_DMA(&hadc2);
 //	  adc_done = 1;
   }
 }
@@ -193,7 +186,7 @@ void read_servo_potentiometer()
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
   HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  while(!adc_done);
+  while(!adc_done); // effectively turn this into polling
 
   HAL_ADC_Stop_DMA(&hadc1);
   l_st_srv.v_pot = voltage_buffer[0];
@@ -292,45 +285,35 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    printmsg("===================== ENCODERS =====================\r\n");
-    if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
-    else printmsg("ENCODER ERROR\r\n");
 
-    if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
-    else printmsg("ENCODER ERROR\r\n");
+	read_servo_potentiometer();
+	read_servo_current();
 
-    if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
-    else printmsg("ENCODER ERROR\r\n");
+	for(int i = 0; i < 100; i++) run_servo(&r_st_srv,i);
 
-    if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
-    else printmsg("ENCODER ERROR\r\n");
+	HAL_ADC_Stop_DMA(&hadc2);
 
-    if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
-    else printmsg("ENCODER ERROR\r\n");
+    // debug
+	printmsg("============= SERVO'S CURRENT ====================\r\n");
+	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
+	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
+	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
+	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
+	printmsg("====================================================\r\n\n");
 
-    if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
-    else printmsg("ENCODER ERROR\r\n");
-    printmsg("====================================================\r\n\n");
+    read_servo_potentiometer();
+    read_servo_current();
 
+    for(int i = 100; i > 0; i--) run_servo(&r_st_srv,i);
 
-//    read_servo_potentiometer();
-//
-//    HAL_Delay(50);
-//
-//    read_servo_current();
-
-//    printmsg("Running... \r\n");
-//    run_servo(&l_st_srv,50);
-//    run_servo(&r_st_srv,50);
-//    run_servo(&l_bbw_srv,50);
-//    run_servo(&r_bbw_srv,50);
-
-//    test_servo(&htim1);
-
-//    HAL_ADC_Stop_DMA(&hadc2);
-
-    HAL_Delay(500);
-
+    HAL_ADC_Stop_DMA(&hadc2);
+    // debug
+	printmsg("============= SERVO'S CURRENT ====================\r\n");
+	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
+	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
+	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
+	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
+	printmsg("====================================================\r\n\n");
   }
   /* USER CODE END 3 */
 }

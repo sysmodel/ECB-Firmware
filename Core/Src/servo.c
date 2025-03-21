@@ -1,18 +1,21 @@
  #include "servo.h"
 
+ /**
+  * @brief Output 5V PWM signal to a specific servo
+  */
  void run_servo(Servo* servo, uint8_t dutycycle)
  {
     HAL_TIM_PWM_Start(servo->timer, servo->channel);
 
     // TODO: add overflow, rounding error check
     uint16_t ccr_val = dutycycle*(__HAL_TIM_GET_AUTORELOAD(servo->timer))/100;
-    // printmsg("ccr = %d\r\n",ccr_val);
+
 
     __HAL_TIM_SET_COMPARE(servo->timer,servo->channel,ccr_val);
     
     // TODO: maybe change it to timer (hardware) delay instead of HAL?
-    // HAL_Delay(SERVO_DELAY_MS);
-    // HAL_TIM_PWM_Stop(servo->timer, servo->channel); // stop or continuous until stop??
+    HAL_Delay(SERVO_DELAY_MS);
+    // HAL_TIM_PWM_Stop(servo->timer, servo->channel); // stop or continuous until stop with a diff. func??
  }
 
  /**
