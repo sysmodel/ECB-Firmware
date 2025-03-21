@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -28,6 +29,7 @@
 
 #include "encoder.h"
 #include "servo.h"
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,39 +71,41 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
-  Encoder l_bbw_enc = { .cs_port = L_BBW_ENC_GPIO_Port,
-                        .cs_pin = L_BBW_ENC_Pin};
 
-  Encoder r_bbw_enc = { .cs_port = R_BBW_ENC_GPIO_Port,
-                        .cs_pin = R_BBW_ENC_Pin };
-  
-  Encoder l_lc_enc = { .cs_port = L_LC_ENC_GPIO_Port,
-                       .cs_pin = L_LC_ENC_Pin };
-  
-  Encoder r_lc_enc = { .cs_port = R_LC_ENC_GPIO_Port,
-                       .cs_pin = R_LC_ENC_Pin };
 
-  Encoder l_as_enc = { .cs_port = L_AS_ENC_GPIO_Port,
-                       .cs_pin = L_AS_ENC_Pin };
+Encoder l_bbw_enc = { .cs_port = L_BBW_ENC_GPIO_Port,
+					.cs_pin = L_BBW_ENC_Pin};
 
-  Encoder r_as_enc = { .cs_port = R_AS_ENC_GPIO_Port,
-                       .cs_pin = R_AS_ENC_Pin };
+Encoder r_bbw_enc = { .cs_port = R_BBW_ENC_GPIO_Port,
+					.cs_pin = R_BBW_ENC_Pin };
 
-  Servo l_st_srv = { .timer = &htim1,
-                     .channel = TIM_CHANNEL_1 };
-  
-  Servo r_st_srv = { .timer = &htim1,
-                     .channel = TIM_CHANNEL_2 };
+Encoder l_lc_enc = { .cs_port = L_LC_ENC_GPIO_Port,
+				   .cs_pin = L_LC_ENC_Pin };
 
-  Servo l_bbw_srv = { .timer = &htim1,
-                      .channel = TIM_CHANNEL_3 };
+Encoder r_lc_enc = { .cs_port = R_LC_ENC_GPIO_Port,
+				   .cs_pin = R_LC_ENC_Pin };
 
-  Servo r_bbw_srv = { .timer = &htim1,
-                      .channel = TIM_CHANNEL_4 };
+Encoder l_as_enc = { .cs_port = L_AS_ENC_GPIO_Port,
+				   .cs_pin = L_AS_ENC_Pin };
 
-  uint32_t voltage_buffer[4];
-  uint32_t current_buffer[4];
-  uint8_t adc_done = 0;
+Encoder r_as_enc = { .cs_port = R_AS_ENC_GPIO_Port,
+				   .cs_pin = R_AS_ENC_Pin };
+
+Servo l_st_srv = { .timer = &htim1,
+				 .channel = TIM_CHANNEL_1 };
+
+Servo r_st_srv = { .timer = &htim1,
+				 .channel = TIM_CHANNEL_2 };
+
+Servo l_bbw_srv = { .timer = &htim1,
+				  .channel = TIM_CHANNEL_3 };
+
+Servo r_bbw_srv = { .timer = &htim1,
+				  .channel = TIM_CHANNEL_4 };
+
+uint32_t voltage_buffer[4];
+uint32_t current_buffer[4];
+uint8_t adc_done = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -130,7 +134,7 @@ static void MX_TIM1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 /*
- * @brief printf to USART2 (connected to ST-Link serial comm.)
+ * @brief printf to USART2 (FTDI) or USB
  * @param format printf string format
  */
 void printmsg(char *format,...)
@@ -142,8 +146,11 @@ void printmsg(char *format,...)
     va_start(args, format);
     vsprintf(str, format,args);
 
-    // Tx in blocking mode, may change later
+    // Transmit via USART2
     HAL_UART_Transmit(&huart2,(uint8_t *)str, strlen(str),HAL_MAX_DELAY);
+
+    // Transmit via USB
+    CDC_Transmit_FS((uint8_t *)str, strlen(str));
 
     va_end(args);
 }
@@ -273,6 +280,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   MX_TIM1_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -348,19 +356,12 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLM = 15;
+  RCC_OscInitStruct.PLL.PLLN = 144;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 6;
+  RCC_OscInitStruct.PLL.PLLQ = 5;
   RCC_OscInitStruct.PLL.PLLR = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Activate the Over-Drive mode
-  */
-  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
@@ -371,7 +372,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
@@ -711,7 +712,7 @@ static void MX_I2C4_Init(void)
 
   /* USER CODE END I2C4_Init 1 */
   hi2c4.Instance = I2C4;
-  hi2c4.Init.Timing = 0x20303E5D;
+  hi2c4.Init.Timing = 0x007074AF;
   hi2c4.Init.OwnAddress1 = 0;
   hi2c4.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c4.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
