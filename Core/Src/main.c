@@ -286,34 +286,37 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	read_servo_potentiometer();
-	read_servo_current();
+//	read_servo_potentiometer();
+//	read_servo_current();
+//
+//	for(int i = 0; i < 100; i++) run_servo(&r_st_srv,i);
+//
+//	HAL_ADC_Stop_DMA(&hadc2);
+//
+//    // debug
+//	printmsg("============= SERVO'S CURRENT ====================\r\n");
+//	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
+//	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
+//	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
+//	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
+//	printmsg("====================================================\r\n\n");
+//
+//    read_servo_potentiometer();
+//    read_servo_current();
+//
+//    for(int i = 100; i > 0; i--) run_servo(&r_st_srv,i);
+//
+//    HAL_ADC_Stop_DMA(&hadc2);
+//    // debug
+//	printmsg("============= SERVO'S CURRENT ====================\r\n");
+//	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
+//	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
+//	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
+//	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
+//	printmsg("====================================================\r\n\n");
 
-	for(int i = 0; i < 100; i++) run_servo(&r_st_srv,i);
+	printmsg("hello world!!!\r\n");
 
-	HAL_ADC_Stop_DMA(&hadc2);
-
-    // debug
-	printmsg("============= SERVO'S CURRENT ====================\r\n");
-	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
-	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
-	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
-	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
-	printmsg("====================================================\r\n\n");
-
-    read_servo_potentiometer();
-    read_servo_current();
-
-    for(int i = 100; i > 0; i--) run_servo(&r_st_srv,i);
-
-    HAL_ADC_Stop_DMA(&hadc2);
-    // debug
-	printmsg("============= SERVO'S CURRENT ====================\r\n");
-	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
-	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
-	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
-	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
-	printmsg("====================================================\r\n\n");
   }
   /* USER CODE END 3 */
 }
