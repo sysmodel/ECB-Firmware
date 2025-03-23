@@ -12,6 +12,9 @@
  * @attention
  * Copyright: (c) 2021-present, SOLO motor controllers project
  * MIT License (see LICENSE file for more details)
+ * *****************************************************************************
+ * @file	SOLOMotorControllersUart.c
+ * 2025/03/25: Convert to C code to be compatible with STM32F7 (QN)
  *******************************************************************************
  */
 
@@ -32,7 +35,7 @@
     solo_uart->packetFailureTrialAttempts = packetFailureTrialAttempts;
  }
  
- static bool ExeCMD(SOLOMotorControllersUart* solo_uart, unsigned char cmd[]) // private/local
+ static bool ExeCMD(SOLOMotorControllersUart* solo_uart, unsigned char cmd[]) // private/local function
  {
    unsigned char _cmd[] = {INITIATOR, INITIATOR, cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], SOLO_CRC, ENDING};
    unsigned char _readPacket[10] = {0};

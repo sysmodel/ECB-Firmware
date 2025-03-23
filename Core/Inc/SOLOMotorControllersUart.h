@@ -1,3 +1,22 @@
+/**
+ *******************************************************************************
+ * @file    SOLOMotorControllersUart.h
+ * @authors SOLO Motor Controllers
+ * @brief   This file contains all the functions prototypes for the Solo Drivers
+ *          uart communications.
+ *          Availability: https://github.com/Solo-FL/SOLO-motor-controllers-ARDUINO-library
+ *
+ * @date    Date: 2024
+ * @version 5.4.3
+ * *******************************************************************************
+ * @attention
+ * Copyright: (c) 2021-present, SOLO motor controllers project
+ * MIT License (see LICENSE file for more details)
+ * ****************************************************************************
+ * 2025/03/25: Convert to C code to be compatible with STM32F7 (QN)
+ *******************************************************************************
+ */
+
 #ifndef SOLO_MOTOR_CONTROLLERS_UART_H
 #define SOLO_MOTOR_CONTROLLERS_UART_H
 

@@ -1,6 +1,6 @@
 /**
  *******************************************************************************
- * @file    SOLOMotorControllersUart.h
+ * @file    SOLOMotorControllersUtils.h
  * @authors SOLO Motor Controllers
  * @brief   This file contains all the utility common functions
  *          Availability: https://github.com/Solo-FL/SOLO-motor-controllers-ARDUINO-library
@@ -11,6 +11,8 @@
  * @attention
  * Copyright: (c) 2021-present, SOLO motor controllers project
  * MIT License (see LICENSE file for more details)
+ * ****************************************************************************
+ * 2025/03/25: Convert to C code to be compatible with STM32F7 (QN)
  *******************************************************************************
  */
 

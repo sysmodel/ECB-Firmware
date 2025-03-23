@@ -11,6 +11,9 @@
  * @attention
  * Copyright: (c) 2021-present, SOLO motor controllers project
  * MIT License (see LICENSE file for more details)
+ * *****************************************************************************
+ * @file	SOLOMotorControllersUtils.c
+ * 2025/03/25: Convert to C code to be compatible with STM32F7 (QN)
  *******************************************************************************
  */
 

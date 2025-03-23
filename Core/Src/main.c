@@ -322,8 +322,8 @@ int main(void)
 //	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
 //	printmsg("====================================================\r\n\n");
 
-	if(!CommunicationIsWorking(&r_uno)) printmsg("R_UNO UART failed!\r\n");
-  if(!CommunicationIsWorking(&l_uno)) printmsg("L_UNO UART failed!\r\n");
+  if(!CommunicationIsWorking(&r_uno)) printmsg("R_UNO UART failed!\r\n");
+  if(!CommunicationIsWorking(&l_uno)) printmsg("L_UNO UART failed!\r\n\n");
   HAL_Delay(500);
   }
   /* USER CODE END 3 */
