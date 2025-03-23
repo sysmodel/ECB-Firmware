@@ -4,7 +4,7 @@
 #include "SOLOMotorControllers.h"
 #include "SOLOMotorControllersUtils.h"
 #include "stm32f7xx_hal.h"
-#include "string.h"
+#include "main.h"
 
 // UART_Commands UART Commands
 // All uart command hex code
@@ -142,10 +142,8 @@ typedef struct {
     int error;
 } SOLOMotorControllersUart;
 
-void SOLOMotorControllersUart_init(SOLOMotorControllersUart* solo_uart, unsigned char deviceAddress, UART_HandleTypeDef *huart, 
+void SOLOMotorControllersUart_Init(SOLOMotorControllersUart* solo_uart, unsigned char deviceAddress, UART_HandleTypeDef *huart, 
                                     long millisecondsTimeout, int packetFailureTrialAttempts);
-
-bool ExeCMD(SOLOMotorControllersUart* solo_uart, unsigned char cmd[]);
 
 bool SetDeviceAddress(SOLOMotorControllersUart* solo_uart, unsigned char deviceAddress);
 bool SetCommandMode(SOLOMotorControllersUart* solo_uart, CommandMode mode);

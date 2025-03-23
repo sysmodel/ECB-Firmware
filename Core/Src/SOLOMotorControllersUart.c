@@ -16,14 +16,14 @@
  */
 
  #include "SOLOMotorControllersUart.h"
- #include "main.h"
 
  #include <stdint.h>
  #include <stdbool.h>
  #include <stdlib.h>
+ #include <string.h>
  
 
- void SOLOMotorControllersUart_init(SOLOMotorControllersUart* solo_uart, unsigned char deviceAddress, UART_HandleTypeDef *huart, 
+ void SOLOMotorControllersUart_Init(SOLOMotorControllersUart* solo_uart, unsigned char deviceAddress, UART_HandleTypeDef *huart, 
                                     long millisecondsTimeout, int packetFailureTrialAttempts)
  {
     solo_uart->addr = deviceAddress;
@@ -32,7 +32,7 @@
     solo_uart->packetFailureTrialAttempts = packetFailureTrialAttempts;
  }
  
- bool ExeCMD(SOLOMotorControllersUart* solo_uart, unsigned char cmd[])
+ static bool ExeCMD(SOLOMotorControllersUart* solo_uart, unsigned char cmd[]) // private/local
  {
    unsigned char _cmd[] = {INITIATOR, INITIATOR, cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], SOLO_CRC, ENDING};
    unsigned char _readPacket[10] = {0};
@@ -1534,7 +1534,6 @@
  /**
   * @brief  This command reads the momentary temperature of the board in centigrade
   *           .The method refers to the Uart Read command: 0x93
-  
   * @retval float [°C]
   */
  float GetBoardTemperature(SOLOMotorControllersUart* solo_uart)
@@ -1555,7 +1554,6 @@
   * @brief  This command reads the Phase or Armature resistance of
   *         the 3-phase or DC brushed motor connected to SOLO respectively
   *           .The method refers to the Uart Read command: 0x94
-  
   * @retval float [Ohms]
   */
  float GetMotorResistance(SOLOMotorControllersUart* solo_uart)
@@ -1576,7 +1574,6 @@
   * @brief  This command reads the Phase or Armature Inductance of
   *         the 3-phase or DC brushed motor connected to SOLO respectively
   *           .The method refers to the Uart Read command: 0x95
-  
   * @retval float [Henry]
   */
  float GetMotorInductance(SOLOMotorControllersUart* solo_uart)
@@ -1597,7 +1594,6 @@
    * @brief  his command reads the actual speed of the motor measured or estimated by SOLO in
              sensorless or sensor-based modes respectively
                .The method refers to the Uart Read command: 0x96
-   
    * @retval long [RPM]
    */
  long GetSpeedFeedback(SOLOMotorControllersUart* solo_uart)
@@ -1617,7 +1613,6 @@
  /**
   * @brief  This command reads the Motor type selected for Digital or Analogue mode operations
   *           .The method refers to the Uart Read command: 0x97
-  
   * @retval long between 0 to 3
   */
  MotorType GetMotorType(SOLOMotorControllersUart* solo_uart)
@@ -1638,7 +1633,6 @@
   * @brief  This command reads the feedback control mode selected on SOLO both
   *         for Analogue and Digital operations
   *           .The method refers to the Uart Read command: 0x99
-  
   * @retval long between 0 to 2
   */
  FeedbackControlMode GetFeedbackControlMode(SOLOMotorControllersUart* solo_uart)
@@ -1658,7 +1652,6 @@
  /**
   * @brief  This command reads the actual commanding mode that SOLO is operating
   *           .The method refers to the Uart Read command: 0x9A
-  
   * @retval long between 0 or 1
   */
  CommandMode GetCommandMode(SOLOMotorControllersUart* solo_uart)
@@ -1679,7 +1672,6 @@
   * @brief  This command reads the Control Mode type in terms of Torque,
   *         Speed or Position in both Digital and Analogue modes
   *           .The method refers to the Uart Read command: 0x9B
-  
   * @retval long between 0 to 2
   */
  ControlMode GetControlMode(SOLOMotorControllersUart* solo_uart)
@@ -1700,7 +1692,6 @@
  /**
   * @brief  This command reads the value of the speed limit set on SOLO
   *           .The method refers to the Uart Read command: 0x9C
-  
   * @retval long [RPM]
   */
  long GetSpeedLimit(SOLOMotorControllersUart* solo_uart)
@@ -1721,7 +1712,6 @@
   * @brief  This command reads the amount of value set for Position
   *         controller Kp or proportional gain
   *           .The method refers to the Uart Read command: 0x9D
-  
   * @retval float between 0 to 16000
   */
  float GetPositionControllerKp(SOLOMotorControllersUart* solo_uart)
@@ -1742,7 +1732,6 @@
   * @brief  This command reads the amount of value set for Position
   *         controller Ki or integrator gain
   *           .The method refers to the Uart Read command: 0x9E
-  
   * @retval float between 0 to 16000
   */
  float GetPositionControllerKi(SOLOMotorControllersUart* solo_uart)
@@ -1763,7 +1752,6 @@
   * @brief  This command reads the number of counted pulses from the
   *         Incremental Encoder or Hall sensors
   *           .The method refers to the Uart Read command: 0xA0
-  
   * @retval long [Quad-Pulses]
   */
  long GetPositionCountsFeedback(SOLOMotorControllersUart* solo_uart)
@@ -1784,7 +1772,6 @@
   * @brief  This command reads the solo_uart->error register which is a 32 bit register with
   *         each bit corresponding to specific errors
   *           .The method refers to the Uart Read command: 0xA1
-  
   * @retval long
   */
  long GetErrorRegister(SOLOMotorControllersUart* solo_uart)
@@ -1804,7 +1791,6 @@
  /**
   * @brief  This command reads the Firmware version existing currently on the SOLO unit
   *           .The method refers to the Uart Read command: 0xA2
-  
   * @retval long
   */
  long GetDeviceFirmwareVersion(SOLOMotorControllersUart* solo_uart)
@@ -1824,7 +1810,6 @@
  /**
   * @brief  This command reads the Hardware version of the SOLO unit connected
   *           .The method refers to the Uart Read command: 0xA3
-  
   * @retval long
   */
  long GetDeviceHardwareVersion(SOLOMotorControllersUart* solo_uart)
@@ -1845,7 +1830,6 @@
   * @brief  This command reads the amount of desired Torque reference (Iq or IM)
   *         already set for the Motor to follow in Digital Closed-loop Torque control mode
   *           .The method refers to the Uart Read command: 0xA4
-  
   * @retval float [Amps]
   */
  float GetTorqueReferenceIq(SOLOMotorControllersUart* solo_uart)
@@ -1866,7 +1850,6 @@
   * @brief  This command reads the amount of desired Speed reference already set for
   *         the Motor to follow in Digital Closed-loop Speed control mode
   *           .The method refers to the Uart Read command: 0xA5
-  
   * @retval long [RPM]
   */
  long GetSpeedReference(SOLOMotorControllersUart* solo_uart)
@@ -1888,7 +1871,6 @@
   *         Magnetizing current reference already set for the Motor to follow
   *         in Digital Closed-loop Speed control mode for ACIM motors
   *           .The method refers to the Uart Read command: 0xA6
-  
   * @retval float [Amps]
   */
  float GetMagnetizingCurrentIdReference(SOLOMotorControllersUart* solo_uart)
@@ -1909,7 +1891,6 @@
   * @brief  This command reads the desired position reference set for the Motor
   *         to follow in Digital Closed-loop Position mode in terms of quadrature pulses
   *           .The method refers to the Uart Read command: 0xA7
-  
   * @retval long [Quad-Pulses]
   */
  long GetPositionReference(SOLOMotorControllersUart* solo_uart)
@@ -1930,7 +1911,6 @@
   * @brief  This command reads the desired Power reference for SOLO to apply in
   *         Digital Open-loop speed control mode for 3-phase motors in terms of percentage
   *           .The method refers to the Uart Read command: 0xA8
-  
   * @retval float [%]
   */
  float GetPowerReference(SOLOMotorControllersUart* solo_uart)
@@ -1950,7 +1930,6 @@
  /**
   * @brief  This commands reads the desired direction of rotation set for the Motor
   *           .The method refers to the Uart Read command: 0xA9
-  
   * @retval long 0 Counter ClockWise / 1 ClockWise
   */
  Direction GetMotorDirection(SOLOMotorControllersUart* solo_uart)
@@ -1970,7 +1949,6 @@
  /**
   * @brief  This command reads the value of Sensorless Zero Speed Full Torque Injection Amplitude
   *           .The method refers to the Uart Read command: 0xAA
-  * @param[out]  solo_uart->error   pointer to an integer that specify result of function
   * @retval float between 0.0 to 0.55
   */
  float GetZsftInjectionAmplitude(SOLOMotorControllersUart* solo_uart)
@@ -1990,7 +1968,6 @@
  /**
   * @brief  This command reads the value of Sensorless Zero Speed Full Torque Polarity Amplitude
   *           .The method refers to the Uart Read command: 0xAB
-  * @param[out]  solo_uart->error   pointer to an integer that specify result of function
   * @retval float between 0.0 to 0.55
   */
  float GetZsftPolarityAmplitude(SOLOMotorControllersUart* solo_uart)
@@ -2010,7 +1987,6 @@
  /**
   * @brief  This command reads the value of Sensorless Observer Gain for DC Motor
   *           .The method refers to the Uart Read command: 0xAC
-  
   * @retval float between 0.01 to 1000
   */
  float GetObserverGainDc(SOLOMotorControllersUart* solo_uart)
@@ -2030,7 +2006,6 @@
  /**
   * @brief  This command reads the value of Sensorless Zero Speed Full Torque Injection Frequency
   *           .The method refers to the Uart Read command: 0xAD
-  * @param[out]  solo_uart->error   pointer to an integer that specify result of function
   * @retval float between 0 to 10
   */
  long GetZsftInjectionFrequency(SOLOMotorControllersUart* solo_uart)
@@ -2050,7 +2025,6 @@
  /**
   * @brief  This command reads the value of Sensorless Transition Speed
   *           .The method refers to the Uart Read command: 0xAE
-  * @param[out]  solo_uart->error   pointer to an integer that specify result of function
   * @retval long between 1 to 5000
   */
  long GetSensorlessTransitionSpeed(SOLOMotorControllersUart* solo_uart)
@@ -2244,7 +2218,6 @@
  }
  
  /**
-  * TODO: WTF is this??
   * @brief  This command test if the communication is working
   * @retval bool 0 not working / 1 for working
   */

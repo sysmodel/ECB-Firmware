@@ -30,6 +30,7 @@
 #include "encoder.h"
 #include "servo.h"
 #include "usbd_cdc_if.h"
+#include "SOLOMotorControllersUart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -71,6 +72,8 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
+SOLOMotorControllersUart l_uno;
+SOLOMotorControllersUart r_uno;
 
 Encoder l_bbw_enc = { .cs_port = L_BBW_ENC_GPIO_Port,
 					.cs_pin = L_BBW_ENC_Pin};
@@ -276,6 +279,10 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
+  // init solo uno controllers 
+  SOLOMotorControllersUart_Init(&r_uno, 0, &huart7, 50, 5); // default values from Arduino code
+  SOLOMotorControllersUart_Init(&l_uno, 0, &huart8, 50, 5);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -315,8 +322,9 @@ int main(void)
 //	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
 //	printmsg("====================================================\r\n\n");
 
-	printmsg("hello world!!!\r\n");
-
+	if(!CommunicationIsWorking(&r_uno)) printmsg("R_UNO UART failed!\r\n");
+  if(!CommunicationIsWorking(&l_uno)) printmsg("L_UNO UART failed!\r\n");
+  HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
