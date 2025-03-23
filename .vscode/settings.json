@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "solomotorcontrollersutils.h": "c",
+        "solomotorcontrollers.h": "c",
+        "solomotorcontrollersuart.h": "c"
+    }
+}
