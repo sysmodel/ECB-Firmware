@@ -41,9 +41,9 @@
    unsigned char _readPacket[10] = {0};
  
    // DEBUG SENT
-   //  printmsg("SENT ");
-   //  for (int i=0; i<10; i++) printmsg("0x%.2X ",_cmd[i]);
-   //  printmsg("\n");
+    //  printmsg("SENT ");
+    //  for (int i=0; i<10; i++) printmsg("0x%.2X ",_cmd[i]);
+    //  printmsg("\n\r");
  
    bool isPACKET_FAILURE_TRIAL_ATTEMPTS_OVERFLOW = true;
    // FailureTrialAttempts block
@@ -69,9 +69,9 @@
      }
 
      // DEBUG
-     //  printmsg("READ ");
-     //  for (int r=0; r<10; r++) printmsg("0x%.2X ",_readPacket[r]);
-     //  printmsg("\n");
+      //  printmsg("READ ");
+      //  for (int r=0; r<10; r++) printmsg("0x%.2X ",_readPacket[r]);
+      //  printmsg("\n\r");
  
      // error, send async error
      if ((_readPacket[3] == 0xA1 && cmd[1] != 0xA1) || _readPacket[3] == 0xFE)
@@ -2228,11 +2228,14 @@
  {
    solo_uart->error = NO_PROCESSED_COMMAND;
    float temperature = GetBoardTemperature(solo_uart);
+  //  char str[100];
+  //  ConvertFloatToString(str,temperature,3);
    if (solo_uart->error == NO_ERROR_DETECTED)
    {
-    printmsg("SOLO temperature: %.2f\r\n", temperature); 
+    // printmsg("SOLO temperature: %s\r\n", str);
     return true;
    }
+  //  printmsg("ERROR = 0x%X\r\n",solo_uart->error);
    return false;
  }
  

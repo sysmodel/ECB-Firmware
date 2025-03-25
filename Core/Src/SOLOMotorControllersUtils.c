@@ -18,6 +18,34 @@
  */
 
  #include "SOLOMotorControllersUtils.h"
+ 
+ #include <stdio.h>
+ #include <stdint.h>
+ #include <string.h>
+ #include <math.h>
+ 
+ void ConvertFloatToString(char *buffer, float value, int precision) 
+ {
+    int int_part = (int)value;
+    float fraction = fabsf(value - int_part);
+
+    // Handle sign for negative values
+    if (value < 0 && int_part == 0) {
+        sprintf(buffer, "-0");
+    } else {
+        sprintf(buffer, "%d", int_part);
+    }
+
+    strcat(buffer, ".");
+
+    for (int i = 0; i < precision; ++i) {
+        fraction *= 10.0f;
+        int digit = (int)fraction;
+        char digit_char[2] = {digit + '0', '\0'};
+        strcat(buffer, digit_char);
+        fraction -= digit;
+    }
+ }
 
  float ConvertToFloat(unsigned char data[])
  {

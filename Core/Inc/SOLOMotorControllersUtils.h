@@ -25,6 +25,7 @@
  extern "C" {
  #endif
  
+ void ConvertFloatToString(char *buffer, float value, int precision);
  float ConvertToFloat(unsigned char data[]);
  long ConvertToLong(unsigned char data[]);
  void ConvertFloatToData(float f, unsigned char data[]);

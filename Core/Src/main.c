@@ -323,8 +323,9 @@ int main(void)
 //	printmsg("====================================================\r\n\n");
 
   if(!CommunicationIsWorking(&r_uno)) printmsg("R_UNO UART failed!\r\n");
+  printmsg("\n\n\r");
   if(!CommunicationIsWorking(&l_uno)) printmsg("L_UNO UART failed!\r\n\n");
-  HAL_Delay(500);
+  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
