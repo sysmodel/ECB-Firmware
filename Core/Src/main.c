@@ -292,6 +292,39 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+   // Set control mode to speed mode
+   SetControlMode(&l_uno, SPEED_MODE);
+
+   // set the Direction on C.C.W.
+   SetMotorDirection(&l_uno, COUNTERCLOCKWISE);
+
+   // set an arbitrary Positive speed reference[RPM]
+   SetSpeedReference(&l_uno, 1500);
+
+   // wait till motor reaches to the reference
+   HAL_Delay(2000);
+   long actualMotorSpeed = GetSpeedFeedback(&l_uno);
+   printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
+
+   float actualMotorTorque = GetQuadratureCurrentIqFeedback(&l_uno);
+   char actualMotorTorqueStr[100];
+   ConvertFloatToString(actualMotorTorqueStr,actualMotorTorque,4);
+   printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
+   HAL_Delay(3000);
+
+   // set the Direction on C.W.
+   SetMotorDirection(&l_uno, CLOCKWISE);
+   // set an arbitrary Positive speed reference[RPM]
+   SetSpeedReference(&l_uno, 900);
+   // wait till motor reaches to the reference
+   HAL_Delay(3000);
+   actualMotorSpeed = GetSpeedFeedback(&l_uno);
+   printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
+   actualMotorTorque = GetQuadratureCurrentIqFeedback(&l_uno);
+   memset(actualMotorTorqueStr,0,sizeof(actualMotorTorqueStr));
+   ConvertFloatToString(actualMotorTorqueStr,actualMotorTorque,4);
+   printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
+   HAL_Delay(3000);
 
 //	read_servo_potentiometer();
 //	read_servo_current();
@@ -299,15 +332,15 @@ int main(void)
 //	for(int i = 0; i < 100; i++) run_servo(&r_st_srv,i);
 //
 //	HAL_ADC_Stop_DMA(&hadc2);
-//
-//    // debug
+
+    // debug
 //	printmsg("============= SERVO'S CURRENT ====================\r\n");
 //	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
 //	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
 //	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
 //	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
 //	printmsg("====================================================\r\n\n");
-//
+
 //    read_servo_potentiometer();
 //    read_servo_current();
 //
@@ -321,11 +354,6 @@ int main(void)
 //	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
 //	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
 //	printmsg("====================================================\r\n\n");
-
-  if(!CommunicationIsWorking(&r_uno)) printmsg("R_UNO UART failed!\r\n");
-  printmsg("\n\n\r");
-  if(!CommunicationIsWorking(&l_uno)) printmsg("L_UNO UART failed!\r\n\n");
-  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }

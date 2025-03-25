@@ -2227,9 +2227,10 @@
  bool CommunicationIsWorking(SOLOMotorControllersUart* solo_uart)
  {
    solo_uart->error = NO_PROCESSED_COMMAND;
-   float temperature = GetBoardTemperature(solo_uart);
+  //  float temperature = GetBoardTemperature(solo_uart);
   //  char str[100];
   //  ConvertFloatToString(str,temperature,3);
+   GetBoardTemperature(solo_uart);
    if (solo_uart->error == NO_ERROR_DETECTED)
    {
     // printmsg("SOLO temperature: %s\r\n", str);
