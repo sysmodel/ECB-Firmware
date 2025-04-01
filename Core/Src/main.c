@@ -170,6 +170,24 @@ void printmsg(char *format,...)
     va_end(args);
 }
 
+void encoder_demo()
+{
+  printmsg("===================== ENCODERS =====================\r\n");
+  if(read_encoder(&l_bbw_enc) == ENCODER_ERR_OK) printmsg("L_BBW_ENC = 0x%X\n\r",l_bbw_enc.position);
+  else printmsg("ENCODER ERROR\r\n");
+  if(read_encoder(&r_bbw_enc) == ENCODER_ERR_OK) printmsg("R_BBW_ENC = 0x%X\n\r",r_bbw_enc.position);
+  else printmsg("ENCODER ERROR\r\n");
+  if(read_encoder(&l_lc_enc) == ENCODER_ERR_OK) printmsg("L_LC_ENC = 0x%X\n\r",l_lc_enc.position);
+  else printmsg("ENCODER ERROR\r\n");
+  if(read_encoder(&r_lc_enc) == ENCODER_ERR_OK) printmsg("R_LC_ENC = 0x%X\n\r",r_lc_enc.position);
+  else printmsg("ENCODER ERROR\r\n");
+  if(read_encoder(&l_as_enc) == ENCODER_ERR_OK) printmsg("L_AS_ENC = 0x%X\n\r",l_as_enc.position);
+  else printmsg("ENCODER ERROR\r\n");
+  if(read_encoder(&r_as_enc) == ENCODER_ERR_OK) printmsg("R_AS_ENC = 0x%X\n\r",r_as_enc.position);
+  else printmsg("ENCODER ERROR\r\n");
+  printmsg("====================================================\r\n\n");
+}
+
 void servo_demo()
 {
    printmsg ("Rotating servo....\r\n");
