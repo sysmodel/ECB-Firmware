@@ -94,20 +94,33 @@ Encoder r_as_enc = { .cs_port = R_AS_ENC_GPIO_Port,
 				   .cs_pin = R_AS_ENC_Pin };
 
 Servo l_st_srv = { .timer = &htim1,
-				 .channel = TIM_CHANNEL_1 };
+				           .pwm_channel = TIM_CHANNEL_1,
+                   .vpot_adc = &hadc1,
+                   .vpot_channel = ADC_CHANNEL_2,
+                   .isense_adc = &hadc2,
+                   .isense_channel = ADC_CHANNEL_3 };
 
 Servo r_st_srv = { .timer = &htim1,
-				 .channel = TIM_CHANNEL_2 };
+				           .pwm_channel = TIM_CHANNEL_2,
+                   .vpot_adc = &hadc1,
+                   .vpot_channel = ADC_CHANNEL_4,
+                   .isense_adc = &hadc2,
+                   .isense_channel = ADC_CHANNEL_7 };
 
 Servo l_bbw_srv = { .timer = &htim1,
-				  .channel = TIM_CHANNEL_3 };
+				            .pwm_channel = TIM_CHANNEL_3,
+                    .vpot_adc = &hadc1,
+                    .vpot_channel = ADC_CHANNEL_14,
+                    .isense_adc = &hadc2,
+                    .isense_channel = ADC_CHANNEL_15 };
 
 Servo r_bbw_srv = { .timer = &htim1,
-				  .channel = TIM_CHANNEL_4 };
+				            .pwm_channel = TIM_CHANNEL_4,
+                    .vpot_adc = &hadc1,
+                    .vpot_channel = ADC_CHANNEL_8,
+                    .isense_adc = &hadc2,
+                    .isense_channel = ADC_CHANNEL_9 };
 
-uint32_t voltage_buffer[4];
-uint32_t current_buffer[4];
-uint8_t adc_done = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -157,74 +170,100 @@ void printmsg(char *format,...)
     va_end(args);
 }
 
-/**
- * @brief Interrupt notification when ADC-DMA conv. is finished
- */
-// int counter = 0;
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+void servo_demo()
 {
-  if(hadc == &hadc1) { adc_done = 1; }
-  if(hadc == &hadc2)
-  {
-//	  counter++;
-	  l_st_srv.i_sense = current_buffer[0];
-	  r_st_srv.i_sense = current_buffer[1];
-	  l_bbw_srv.i_sense = current_buffer[2];
-	  r_bbw_srv.i_sense = current_buffer[3];
+   printmsg ("Rotating servo....\r\n");
 
-//	  HAL_ADC_Stop_DMA(&hadc2);
-//	  adc_done = 1;
-  }
+  //  run_servo(&l_st_srv,0);
+   run_servo(&r_st_srv,0);
+  //  run_servo(&l_bbw_srv,0);
+  //  run_servo(&r_bbw_srv,0);
+   
+   read_servo_potentiometer(&l_st_srv);
+   read_servo_potentiometer(&r_st_srv);
+   read_servo_potentiometer(&l_bbw_srv);
+   read_servo_potentiometer(&r_bbw_srv);
+
+   // debug
+   printmsg("============= SERVO'S POTENTIOMETER ================\r\n");
+   printmsg("L_ST_SRV = %d\n\r",l_st_srv.vpot);
+   printmsg("R_ST_SRV = %d\n\r",r_st_srv.vpot);
+   printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.vpot);
+   printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.vpot);
+   printmsg("====================================================\r\n\n");
+
+   printmsg("============= SERVO'S CURRENT ======================\r\n");
+   printmsg("L_ST_SRV = %d\n\r",l_st_srv.isense);
+   printmsg("R_ST_SRV = %d\n\r",r_st_srv.isense);
+   printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.isense);
+   printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.isense);
+   printmsg("====================================================\r\n\n");
+
+   HAL_Delay(500);
+
+   printmsg ("Rotating servo....\r\n");
+
+  //  run_servo(&l_st_srv,100);
+   run_servo(&r_st_srv,100);
+  //  run_servo(&l_bbw_srv,100);
+  //  run_servo(&r_bbw_srv,100);
+
+   read_servo_potentiometer(&l_st_srv);
+   read_servo_potentiometer(&r_st_srv);
+   read_servo_potentiometer(&l_bbw_srv);
+   read_servo_potentiometer(&r_bbw_srv);
+
+   // debug
+   printmsg("============= SERVO'S POTENTIOMETER ================\r\n");
+   printmsg("L_ST_SRV = %d\n\r",l_st_srv.vpot);
+   printmsg("R_ST_SRV = %d\n\r",r_st_srv.vpot);
+   printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.vpot);
+   printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.vpot);
+   printmsg("====================================================\r\n\n");
+
+   printmsg("============= SERVO'S CURRENT ======================\r\n");
+   printmsg("L_ST_SRV = %d\n\r",l_st_srv.isense);
+   printmsg("R_ST_SRV = %d\n\r",r_st_srv.isense);
+   printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.isense);
+   printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.isense);
+   printmsg("====================================================\r\n\n");
 }
 
-/**
- * @brief read all servos' internal potentiometers
- */
-void read_servo_potentiometer()
+void solo_uno_demo()
 {
-  memset(voltage_buffer,0,sizeof(voltage_buffer));
+  // Set control mode to speed mode
+  SetControlMode(&l_uno, SPEED_MODE);
 
-  HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  HAL_ADC_Start_DMA(&hadc1,voltage_buffer,4);
-  while(!adc_done); // effectively turn this into polling
+  // set the Direction on C.C.W.
+  SetMotorDirection(&l_uno, COUNTERCLOCKWISE);
 
-  HAL_ADC_Stop_DMA(&hadc1);
-  l_st_srv.v_pot = voltage_buffer[0];
-  r_st_srv.v_pot = voltage_buffer[1];
-  l_bbw_srv.v_pot = voltage_buffer[2];
-  r_bbw_srv.v_pot = voltage_buffer[3];
+  // set an arbitrary Positive speed reference[RPM]
+  SetSpeedReference(&l_uno, 1500);
 
+  // wait till motor reaches to the reference
+  HAL_Delay(2000);
+  long actualMotorSpeed = GetSpeedFeedback(&l_uno);
+  printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
 
-  // debug
-  printmsg("============= SERVO'S POTENTIOMETER ================\r\n");
-  printmsg("L_ST_SRV = %d\n\r",l_st_srv.v_pot);
-  printmsg("R_ST_SRV = %d\n\r",r_st_srv.v_pot);
-  printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.v_pot);
-  printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.v_pot);
-  printmsg("====================================================\r\n\n");
+  float actualMotorTorque = GetQuadratureCurrentIqFeedback(&l_uno);
+  char actualMotorTorqueStr[100];
+  ConvertFloatToString(actualMotorTorqueStr,actualMotorTorque,4);
+  printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
+  HAL_Delay(3000);
 
-  adc_done = 0;
-}
-
-/**
- * @brief read all servos' current
- */
-void read_servo_current()
-{
-  memset(current_buffer,0,sizeof(current_buffer));
-
-  HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
-  HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
-  HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
-  HAL_ADC_Start_DMA(&hadc2,current_buffer,4);
-//  while(!adc_done); // effectively turn this into polling
-//  HAL_ADC_Stop_DMA(&hadc2);
-//  adc_done = 0;
-//  printmsg("counter = %d\r\n", counter);
-//  counter = 0;
+  // set the Direction on C.W.
+  SetMotorDirection(&l_uno, CLOCKWISE);
+  // set an arbitrary Positive speed reference[RPM]
+  SetSpeedReference(&l_uno, 900);
+  // wait till motor reaches to the reference
+  HAL_Delay(3000);
+  actualMotorSpeed = GetSpeedFeedback(&l_uno);
+  printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
+  actualMotorTorque = GetQuadratureCurrentIqFeedback(&l_uno);
+  memset(actualMotorTorqueStr,0,sizeof(actualMotorTorqueStr));
+  ConvertFloatToString(actualMotorTorqueStr,actualMotorTorque,4);
+  printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
+  HAL_Delay(3000);
 }
 
 /* USER CODE END 0 */
@@ -292,68 +331,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-   // Set control mode to speed mode
-   SetControlMode(&l_uno, SPEED_MODE);
 
-   // set the Direction on C.C.W.
-   SetMotorDirection(&l_uno, COUNTERCLOCKWISE);
-
-   // set an arbitrary Positive speed reference[RPM]
-   SetSpeedReference(&l_uno, 1500);
-
-   // wait till motor reaches to the reference
-   HAL_Delay(2000);
-   long actualMotorSpeed = GetSpeedFeedback(&l_uno);
-   printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
-
-   float actualMotorTorque = GetQuadratureCurrentIqFeedback(&l_uno);
-   char actualMotorTorqueStr[100];
-   ConvertFloatToString(actualMotorTorqueStr,actualMotorTorque,4);
-   printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
-   HAL_Delay(3000);
-
-   // set the Direction on C.W.
-   SetMotorDirection(&l_uno, CLOCKWISE);
-   // set an arbitrary Positive speed reference[RPM]
-   SetSpeedReference(&l_uno, 900);
-   // wait till motor reaches to the reference
-   HAL_Delay(3000);
-   actualMotorSpeed = GetSpeedFeedback(&l_uno);
-   printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
-   actualMotorTorque = GetQuadratureCurrentIqFeedback(&l_uno);
-   memset(actualMotorTorqueStr,0,sizeof(actualMotorTorqueStr));
-   ConvertFloatToString(actualMotorTorqueStr,actualMotorTorque,4);
-   printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
-   HAL_Delay(3000);
-
-//	read_servo_potentiometer();
-//	read_servo_current();
-//
-//	for(int i = 0; i < 100; i++) run_servo(&r_st_srv,i);
-//
-//	HAL_ADC_Stop_DMA(&hadc2);
-
-    // debug
-//	printmsg("============= SERVO'S CURRENT ====================\r\n");
-//	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
-//	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
-//	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
-//	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
-//	printmsg("====================================================\r\n\n");
-
-//    read_servo_potentiometer();
-//    read_servo_current();
-//
-//    for(int i = 100; i > 0; i--) run_servo(&r_st_srv,i);
-//
-//    HAL_ADC_Stop_DMA(&hadc2);
-//    // debug
-//	printmsg("============= SERVO'S CURRENT ====================\r\n");
-//	printmsg("L_ST_SRV = %d\n\r",l_st_srv.i_sense);
-//	printmsg("R_ST_SRV = %d\n\r",r_st_srv.i_sense);
-//	printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.i_sense);
-//	printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.i_sense);
-//	printmsg("====================================================\r\n\n");
   }
   /* USER CODE END 3 */
 }
@@ -427,13 +405,13 @@ static void MX_ADC1_Init(void)
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 4;
+  hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -446,33 +424,6 @@ static void MX_ADC1_Init(void)
   sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_4;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_14;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_8;
-  sConfig.Rank = ADC_REGULAR_RANK_4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -506,13 +457,13 @@ static void MX_ADC2_Init(void)
   hadc2.Instance = ADC2;
   hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc2.Init.ContinuousConvMode = DISABLE;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc2.Init.NbrOfConversion = 4;
+  hadc2.Init.NbrOfConversion = 1;
   hadc2.Init.DMAContinuousRequests = DISABLE;
   hadc2.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc2) != HAL_OK)
@@ -525,33 +476,6 @@ static void MX_ADC2_Init(void)
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_7;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_15;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_9;
-  sConfig.Rank = ADC_REGULAR_RANK_4;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
     Error_Handler();

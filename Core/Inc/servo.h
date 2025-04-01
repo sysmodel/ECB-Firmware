@@ -10,18 +10,27 @@
  #include <stdlib.h>
  #include <string.h>
  #include <stdarg.h>
+ #include <stdint.h>
+ #include <math.h>
  
  #include "main.h"
  
- #define SERVO_DELAY_MS 10 // time for servo to reach desired position, cannot be 0
+ #define SERVO_STEP_DELAY_MS 10 // time for servo to reach desired position, cannot be 0
 
  typedef struct{
-    TIM_HandleTypeDef* timer;     // timer handler
-    uint32_t           channel;   // timer's pwm channel (check .ioc file)
-    uint32_t           v_pot;     // internal potentiometer voltage
-    uint32_t           i_sense;   // servo's current draw
+    TIM_HandleTypeDef* timer;         // timer handler for pwm
+    uint32_t           pwm_channel;   // timer's pwm channel (check .ioc file)
+    
+    ADC_HandleTypeDef* vpot_adc;      // ADC handler for servo internal potentiometer
+    uint32_t           vpot_channel;
+    uint32_t           vpot;          // internal potentiometer voltage
+    
+    ADC_HandleTypeDef* isense_adc;    // ADC handler for servo current sense
+    uint32_t           isense_channel;
+    uint32_t           isense;        // servo's current draw
  } Servo;
-
+ 
+ void read_servo_potentiometer(Servo* servo);
  void run_servo(Servo* servo, uint8_t dutycycle);
  void test_servo(TIM_HandleTypeDef* timer); // for testing only
 
