@@ -340,6 +340,9 @@ int main(void)
   SOLOMotorControllersUart_Init(&r_uno, 0, &huart7, 50, 5); // default values from Arduino code
   SOLOMotorControllersUart_Init(&l_uno, 0, &huart8, 50, 5);
 
+  char mode = 'm';  // m = main menu, '1' = option A, '2' = option B
+  uint8_t rx_char = 0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -349,7 +352,47 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    if (HAL_UART_Receive(&huart2, &rx_char, 1, 10) == HAL_OK)
+    {
+      if (mode == 'm')
+      {
+        switch (rx_char)
+        {
+          case '1':
+            mode = '1';
+            printmsg("Entered Option A. Press 'q' to return.\r\n");
+            break;
 
+          case '2':
+            mode = '2';
+            printmsg("Entered Option B. Press 'q' to return.\r\n");
+            break;
+
+          case 'q':
+            printmsg("Quit selected. Still staying in main loop.\r\n");
+            break;
+
+          default:
+            printmsg("Invalid input. Try again.\r\n");
+            break;
+        }
+      }
+      else
+      {
+        if (rx_char == 'q')
+        {
+          mode = 'm';
+          printmsg("\r\nBack to Main Menu:\r\n1 - Option A\r\n2 - Option B\r\nq - Quit\r\n");
+        }
+        else
+        {
+          // Optional: echo or do submenu stuff
+          printmsg("Still inside submenu. Press 'q' to return.\r\n");
+        }
+      }
+
+      rx_char = 0;
+    }
   }
   /* USER CODE END 3 */
 }
