@@ -196,14 +196,16 @@ void encoder_demo()
   printmsg("====================================================\r\n\n");
 }
 
-void servo_demo()
+void servo_demo(uint8_t max_duty)
 {
-   printmsg ("Rotating servo....\r\n");
+   printmsg ("Rotating Servo....\r\n");
 
-   run_servo(&l_st_srv,0);
-   run_servo(&r_st_srv,0);
-   // run_servo(&l_bbw_srv,0);
-   // run_servo(&r_bbw_srv,0);
+   printmsg("Duty Cycle Input = %d%% \r\n", max_duty);
+
+   // run_servo(&l_st_srv,max_duty);
+   run_servo(&r_st_srv,max_duty);
+   // run_servo(&l_bbw_srv,max_duty);
+   // run_servo(&r_bbw_srv,max_duty);
    
    // debug
    printmsg("============= SERVO'S POTENTIOMETER ================\r\n");
@@ -222,12 +224,14 @@ void servo_demo()
 
    HAL_Delay(500);
 
-   printmsg ("Rotating servo....\r\n");
+   printmsg ("Rotating Servo....\r\n");
 
-   run_servo(&l_st_srv,100);
-   run_servo(&r_st_srv,100);
-   // run_servo(&l_bbw_srv,100);
-   // run_servo(&r_bbw_srv,100);
+   printmsg("Duty Cycle Input = %d%% \r\n", 0);
+
+   // run_servo(&l_st_srv,0);
+   run_servo(&r_st_srv,0);
+   // run_servo(&l_bbw_srv,0);
+   // run_servo(&r_bbw_srv,0);
 
    // debug
    printmsg("============= SERVO'S POTENTIOMETER ================\r\n");
@@ -243,6 +247,7 @@ void servo_demo()
    printmsg("L_BBW_SRV = %d\n\r",l_bbw_srv.isense);
    printmsg("R_BBW_SRV = %d\n\r",r_bbw_srv.isense);
    printmsg("====================================================\r\n\n");
+
 }
 
 void solo_uno_demo()
@@ -259,7 +264,7 @@ void solo_uno_demo()
   SetSpeedReference(&l_uno, 1500);
 
   // wait till motor reaches to the reference
-  HAL_Delay(2000);
+  HAL_Delay(3000);
   long actualMotorSpeed = GetSpeedFeedback(&l_uno);
   printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
 
@@ -286,7 +291,7 @@ void solo_uno_demo()
   printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
   HAL_Delay(3000);
 
-  printmsg("====================================================\r\n");
+  printmsg("====================================================\r\n\n");
 }
 
 void demo_menu()
@@ -374,7 +379,7 @@ int main(void)
 	// Read new command, busy loop implementation, not interrupt
 	HAL_UART_Receive(&huart2, &cmd, 1, 10);
 
-	check_cmd:
+	check_cmd: // FIXME: remove goto, for demo only
 	switch (cmd)
 	{
 	  case 'E':
@@ -385,7 +390,7 @@ int main(void)
 
 	  case 'S':
 	  case 's':
-		  servo_demo();
+		  servo_demo(100);
 		  HAL_Delay(500);
 		break;
 

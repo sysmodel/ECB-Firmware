@@ -122,6 +122,11 @@
     // HAL_TIM_PWM_Stop(servo->timer, servo->pwm_channel);
  }
 
+ void detach_servo(Servo* servo)
+ {
+	 HAL_TIM_PWM_Stop(servo->timer, servo->pwm_channel);
+ }
+
  /**
   * @brief output 5V PWM signals to all 4 servo ports (htim1)
   *        that goes from 0% to 100% duty cycle

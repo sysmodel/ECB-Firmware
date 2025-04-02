@@ -30,7 +30,8 @@
     uint32_t           isense;        // current draw (12 bit ADC)
  } Servo;
  
- void run_servo(Servo* servo, uint8_t dutycycle);
- void test_servo(TIM_HandleTypeDef* timer); // for testing only
+ void run_servo(Servo* servo, uint8_t dutycycle); // move servo to desired position based on duty cycle
+ void detach_servo(Servo* servo);                 // stop servo's PWM signal
+ void test_servo(TIM_HandleTypeDef* timer);       // for testing only
 
  #endif /* INC_SERVO_H_ */
