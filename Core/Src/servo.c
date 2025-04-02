@@ -35,9 +35,12 @@
   * @brief curve fit to map adc 12bit val to dutycycle
   * TODO: map it to servo current position instead
   */
- static uint8_t map_adc_to_duty(uint16_t adc_value) 
+ static uint8_t map_adc_to_duty(uint32_t adc_value)
  {
-    float duty = 40.6846f * adc_value - 493.3433f;
+
+	printmsg("vpot = %ld\r\n",adc_value);
+	float p1 = 40.6846f, p2 = 493.3433f;
+    float duty = (adc_value + p2) / p1;
 
     if (duty < 0) duty = 0;
     if (duty > 100) duty = 100;
@@ -77,18 +80,36 @@
     // Start PWM
     HAL_TIM_PWM_Start(servo->timer, servo->pwm_channel);
     
+    read_servo_potentiometer(servo);
+    uint8_t current_duty = map_adc_to_duty(servo->vpot);
+
+    printmsg("current_duty = %d\r\n",current_duty);
+
+    uint16_t current_ccr = current_duty*(__HAL_TIM_GET_AUTORELOAD(servo->timer))/100;
+
+//    __HAL_TIM_SET_COMPARE(servo->timer, servo->pwm_channel, current_ccr);
+
     //TODO: Add dutycycle boundary (20% <= duty <= 97%)
-    uint16_t current_ccr = __HAL_TIM_GET_COMPARE(servo->timer, servo->pwm_channel);
-    uint16_t target_ccr = dutycycle*(__HAL_TIM_GET_AUTORELOAD(servo->timer))/100;
+//    uint16_t current_ccr = __HAL_TIM_GET_COMPARE(servo->timer, servo->pwm_channel); // doesnt work
+
+//    uint16_t target_ccr = dutycycle*(__HAL_TIM_GET_AUTORELOAD(servo->timer))/100;
 
     // Start current sense ADC
     read_servo_current(servo);
 
-    while (current_ccr != target_ccr) {
-        current_ccr += (current_ccr < target_ccr) ? 1 : -1;
-
-        __HAL_TIM_SET_COMPARE(servo->timer, servo->pwm_channel, current_ccr);
-        HAL_Delay(SERVO_STEP_DELAY_MS);
+//    while (current_ccr != target_ccr) {
+//    	printmsg("current ccr = %d\r\n, target ccr = %d\r\n", current_ccr, target_ccr);
+//        current_ccr += (current_ccr < target_ccr) ? 1 : -1;
+//
+//        __HAL_TIM_SET_COMPARE(servo->timer, servo->pwm_channel, current_ccr);
+//        HAL_Delay(SERVO_STEP_DELAY_MS);
+//    }
+    while(current_duty != dutycycle)
+    {
+    	__HAL_TIM_SET_COMPARE(servo->timer, servo->pwm_channel, current_ccr);
+    	current_ccr = current_duty*(__HAL_TIM_GET_AUTORELOAD(servo->timer))/100;
+    	current_duty += (current_duty < dutycycle) ? 1 : -1;
+    	HAL_Delay(SERVO_STEP_DELAY_MS);
     }
     
     HAL_ADC_Stop_DMA(servo->isense_adc);
