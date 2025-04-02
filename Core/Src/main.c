@@ -98,28 +98,36 @@ Servo l_st_srv = { .timer = &htim1,
                    .vpot_adc = &hadc1,
                    .vpot_channel = ADC_CHANNEL_2,
                    .isense_adc = &hadc2,
-                   .isense_channel = ADC_CHANNEL_3 };
+                   .isense_channel = ADC_CHANNEL_3,
+                   .vpot = 0,
+                   .isense = 0 };
 
 Servo r_st_srv = { .timer = &htim1,
                    .pwm_channel = TIM_CHANNEL_2,
                    .vpot_adc = &hadc1,
                    .vpot_channel = ADC_CHANNEL_4,
                    .isense_adc = &hadc2,
-                   .isense_channel = ADC_CHANNEL_7 };
+                   .isense_channel = ADC_CHANNEL_7,
+                   .vpot = 0,
+                   .isense = 0 };
 
 Servo l_bbw_srv = { .timer = &htim1,
                     .pwm_channel = TIM_CHANNEL_3,
                     .vpot_adc = &hadc1,
                     .vpot_channel = ADC_CHANNEL_14,
                     .isense_adc = &hadc2,
-                    .isense_channel = ADC_CHANNEL_15 };
+                    .isense_channel = ADC_CHANNEL_15,
+	                .vpot = 0,
+	                .isense = 0 };
 
 Servo r_bbw_srv = { .timer = &htim1,
 		            .pwm_channel = TIM_CHANNEL_4,
                     .vpot_adc = &hadc1,
                     .vpot_channel = ADC_CHANNEL_8,
                     .isense_adc = &hadc2,
-                    .isense_channel = ADC_CHANNEL_9 };
+                    .isense_channel = ADC_CHANNEL_9,
+	                .vpot = 0,
+	                .isense = 0 };
 
 /* USER CODE END PV */
 
@@ -192,16 +200,11 @@ void servo_demo()
 {
    printmsg ("Rotating servo....\r\n");
 
-  //  run_servo(&l_st_srv,0);
+   run_servo(&l_st_srv,0);
    run_servo(&r_st_srv,0);
-  //  run_servo(&l_bbw_srv,0);
-  //  run_servo(&r_bbw_srv,0);
+   // run_servo(&l_bbw_srv,0);
+   // run_servo(&r_bbw_srv,0);
    
-   read_servo_potentiometer(&l_st_srv);
-   read_servo_potentiometer(&r_st_srv);
-   read_servo_potentiometer(&l_bbw_srv);
-   read_servo_potentiometer(&r_bbw_srv);
-
    // debug
    printmsg("============= SERVO'S POTENTIOMETER ================\r\n");
    printmsg("L_ST_SRV = %d\n\r",l_st_srv.vpot);
@@ -221,15 +224,10 @@ void servo_demo()
 
    printmsg ("Rotating servo....\r\n");
 
-  //  run_servo(&l_st_srv,100);
+   run_servo(&l_st_srv,100);
    run_servo(&r_st_srv,100);
-  //  run_servo(&l_bbw_srv,100);
-  //  run_servo(&r_bbw_srv,100);
-
-   read_servo_potentiometer(&l_st_srv);
-   read_servo_potentiometer(&r_st_srv);
-   read_servo_potentiometer(&l_bbw_srv);
-   read_servo_potentiometer(&r_bbw_srv);
+   // run_servo(&l_bbw_srv,100);
+   // run_servo(&r_bbw_srv,100);
 
    // debug
    printmsg("============= SERVO'S POTENTIOMETER ================\r\n");
@@ -273,12 +271,15 @@ void solo_uno_demo()
 
   // set the Direction on C.W.
   SetMotorDirection(&l_uno, CLOCKWISE);
+
   // set an arbitrary Positive speed reference[RPM]
   SetSpeedReference(&l_uno, 900);
+
   // wait till motor reaches to the reference
   HAL_Delay(3000);
   actualMotorSpeed = GetSpeedFeedback(&l_uno);
   printmsg("\n Measured Speed[RPM]: %ld\r\n", actualMotorSpeed);
+
   actualMotorTorque = GetQuadratureCurrentIqFeedback(&l_uno);
   memset(actualMotorTorqueStr,0,sizeof(actualMotorTorqueStr));
   ConvertFloatToString(actualMotorTorqueStr,actualMotorTorque,4);
@@ -294,7 +295,7 @@ void demo_menu()
     printmsg("           (E)ncoder Demo\r\n");
     printmsg("           (S)ervo Demo\r\n");
     printmsg("           (B)LDC Driver Demo\r\n");
-    printmsg("           (Q)uit / Back\r\n");
+    printmsg("           (Q)uit / Back to Menu\r\n");
 	printmsg("==========================================\r\n\n");
 }
 
@@ -354,9 +355,11 @@ int main(void)
   SOLOMotorControllersUart_Init(&r_uno, 0, &huart7, 50, 5); // default values from Arduino code
   SOLOMotorControllersUart_Init(&l_uno, 0, &huart8, 50, 5);
 
-  uint8_t cmd = 0; // from UART
+  uint8_t cmd = 0; // variable to store cmd read from UART
   demo_menu(); // print menu
-  while(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) != HAL_OK); // first cmd
+
+  // get first cmd, without this first cmd will be default case
+  while(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) != HAL_OK);
 
   /* USER CODE END 2 */
 
@@ -368,53 +371,41 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  // memset(&cmd,0,sizeof(cmd)); // clear cmd
+	// Read new command, busy loop implementation, not interrupt
+	HAL_UART_Receive(&huart2, &cmd, 1, 10);
 
-	  HAL_UART_Receive(&huart2, &cmd, 1, 10);
-		check_cmd:
-		switch (cmd)
-		{
-		  case 'E':
-		  case 'e':
-//			  while(memcmp(&cmd, "E", 1) == 0 || memcmp(&cmd, "e", 1) == 0)
-			  {
-				  encoder_demo();
-//				  if(HAL_UART_Receive(&huart2, &cmd, 1, 10) == HAL_OK) goto check_cmd;
-				  HAL_Delay(500);
-			  }
-			break;
+	check_cmd:
+	switch (cmd)
+	{
+	  case 'E':
+	  case 'e':
+		  encoder_demo();
+		  HAL_Delay(500);
+		break;
 
-		  case 'S':
-		  case 's':
-//			  while(memcmp(&cmd, "S", 1) == 0 || memcmp(&cmd, "s", 1) == 0)
-			  {
-				  servo_demo();
-//				  if(HAL_UART_Receive(&huart2, &cmd, 1, 10) == HAL_OK) goto check_cmd;
-				  HAL_Delay(500);
-			  }
-			break;
+	  case 'S':
+	  case 's':
+		  servo_demo();
+		  HAL_Delay(500);
+		break;
 
-		  case 'B':
-		  case 'b':
-//			  while(memcmp(&cmd, "B", 1) == 0 || memcmp(&cmd, "b", 1) == 0)
-			  {
-				  solo_uno_demo();
-//				  if(HAL_UART_Receive(&huart2, &cmd, 1, 10) == HAL_OK) goto check_cmd;
-				  HAL_Delay(500);
-			  }
-			break;
+	  case 'B':
+	  case 'b':
+		  solo_uno_demo();
+		  HAL_Delay(500);
+		break;
 
-		  case 'Q':
-		  case 'q':
-			  demo_menu();
-			  if(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) == HAL_OK) goto check_cmd;
-			break;
+	  case 'Q':
+	  case 'q':
+		  demo_menu();
+		  if(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) == HAL_OK) goto check_cmd;
+		break;
 
-		  default:
-			  printmsg("Invalid input. Try again.\r\n");
-			  if(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) == HAL_OK) goto check_cmd;
-			break;
-		}
+	  default:
+		  printmsg("Invalid input. Try again.\r\n");
+		  if(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) == HAL_OK) goto check_cmd;
+		break;
+	}
   }
   /* USER CODE END 3 */
 }

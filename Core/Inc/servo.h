@@ -22,15 +22,14 @@
     uint32_t           pwm_channel;   // timer's pwm channel (check .ioc file)
     
     ADC_HandleTypeDef* vpot_adc;      // ADC handler for servo internal potentiometer
-    uint32_t           vpot_channel;
-    uint32_t           vpot;          // internal potentiometer voltage
+    uint32_t           vpot_channel;  // check .ioc file
+    uint32_t           vpot;          // internal potentiometer voltage (12 bit ADC)
     
     ADC_HandleTypeDef* isense_adc;    // ADC handler for servo current sense
-    uint32_t           isense_channel;
-    uint32_t           isense;        // servo's current draw
+    uint32_t           isense_channel;// check .ioc file
+    uint32_t           isense;        // current draw (12 bit ADC)
  } Servo;
  
- void read_servo_potentiometer(Servo* servo);
  void run_servo(Servo* servo, uint8_t dutycycle);
  void test_servo(TIM_HandleTypeDef* timer); // for testing only
 
