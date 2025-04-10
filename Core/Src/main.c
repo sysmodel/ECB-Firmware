@@ -291,6 +291,10 @@ void solo_uno_demo()
   printmsg("\n Measured Iq/Torque[A]: %s\r\n", actualMotorTorqueStr);
   HAL_Delay(3000);
 
+  // set an arbitrary Positive speed reference[RPM]
+  SetSpeedReference(&l_uno, 0);
+  HAL_Delay(3000);
+
   printmsg("====================================================\r\n\n");
 }
 
@@ -363,9 +367,6 @@ int main(void)
   uint8_t cmd = 0; // variable to store cmd read from UART
   demo_menu(); // print menu
 
-  // get first cmd, without this first cmd will be default case
-  while(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) != HAL_OK);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -377,9 +378,9 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	// Read new command, busy loop implementation, not interrupt
-	HAL_UART_Receive(&huart2, &cmd, 1, 10);
-
-	check_cmd: // FIXME: remove goto, for demo only
+	memset(&cmd, 0, sizeof(cmd));
+	if(HAL_UART_Receive(&huart2, &cmd, 1, 10) == HAL_OK)
+	{
 	switch (cmd)
 	{
 	  case 'E':
@@ -403,13 +404,12 @@ int main(void)
 	  case 'Q':
 	  case 'q':
 		  demo_menu();
-		  if(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) == HAL_OK) goto check_cmd;
 		break;
 
 	  default:
 		  printmsg("Invalid input. Try again.\r\n");
-		  if(HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY) == HAL_OK) goto check_cmd;
 		break;
+	}
 	}
   }
   /* USER CODE END 3 */
