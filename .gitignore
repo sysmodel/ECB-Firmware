@@ -1,1 +1,65 @@
+# Build directories
 Debug/
+Release/
+build/
+out/
+
+# STM32CubeIDE
+*.launch
+*.settings/
+*.mxproject
+*.ioc
+*.log
+*.bin
+*.elf
+*.hex
+*.map
+*.lst
+*.d
+*.o
+*.dep
+*.su
+*.crf
+*.sct
+*.axf
+
+# Keil uVision
+*.uvoptx
+*.uvguix
+*.uvprojx
+*.bak
+
+# IAR Embedded Workbench
+*.eww
+*.ewd
+*.ewp
+*.ewt
+*.dep
+*.lst
+*.map
+*.srec
+
+# Miscellaneous
+*.swp
+*.swo
+*.DS_Store
+*.user
+*.tmp
+*.log
+
+# Generated files
+*.list
+*.lss
+*.obj
+*.d
+*.exe
+
+# CubeMX
+*.ioc
+
+# Ignore firmware libraries if added as submodules
+Middlewares/
+Drivers/
+
+# Ignore VSCode settings (optional)
+.vscode/
